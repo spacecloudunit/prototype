@@ -208,11 +208,15 @@ contract DetailedERC20 is ERC20 {
     string public symbol;
     uint8 public decimals;
 
-    constructor(string _name, string _symbol, uint8 _decimals) public {
+    constructor() public {
+        // Fields have to be set by child constructor
+    }
+
+    /*constructor(string _name, string _symbol, uint8 _decimals) public {
         name = _name;
         symbol = _symbol;
         decimals = _decimals;
-    }
+    }*/
 }
 
 /**
@@ -467,10 +471,14 @@ contract CappedToken is MintableToken {
 
     uint256 public cap;
 
-    constructor(uint256 _cap) public {
+    constructor() public {
+        // cap has to be set by child constructor
+    }
+
+    /*constructor(uint256 _cap) public {
         require(_cap > 0);
         cap = _cap;
-    }
+    }*/
 
     /**
      * @dev Function to mint tokens
