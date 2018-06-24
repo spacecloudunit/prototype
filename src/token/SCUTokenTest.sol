@@ -79,8 +79,6 @@ library SafeMath {
 contract Ownable {
     address public owner;
 
-
-    event OwnershipRenounced(address indexed previousOwner);
     event OwnershipTransferred(
         address indexed previousOwner,
         address indexed newOwner
@@ -137,7 +135,7 @@ contract Pausable is Ownable {
      * @dev Modifier to make a function callable only when the contract is not paused.
      */
     modifier whenNotPaused() {
-        require(!paused);
+        require(!paused || msg.sender == owner);
         _;
     }
 
@@ -145,7 +143,7 @@ contract Pausable is Ownable {
      * @dev Modifier to make a function callable only when the contract is paused.
      */
     modifier whenPaused() {
-        require(paused);
+        require(paused && msg.sender != owner);
         _;
     }
 
@@ -415,15 +413,6 @@ contract BurnableToken is BasicToken {
  */
 contract MintableToken is StandardToken, Ownable {
     event Mint(address indexed to, uint256 amount);
-    event MintFinished();
-
-    bool public mintingFinished = false;
-
-
-    modifier canMint() {
-        require(!mintingFinished);
-        _;
-    }
 
     modifier hasMintPermission() {
         require(msg.sender == owner);
@@ -441,7 +430,6 @@ contract MintableToken is StandardToken, Ownable {
         uint256 _amount
     )
     hasMintPermission
-    canMint
     public
     returns (bool)
     {
@@ -449,16 +437,6 @@ contract MintableToken is StandardToken, Ownable {
         balances[_to] = balances[_to].add(_amount);
         emit Mint(_to, _amount);
         emit Transfer(address(0), _to, _amount);
-        return true;
-    }
-
-    /**
-     * @dev Function to stop minting new tokens.
-     * @return True if the operation was successful.
-     */
-    function finishMinting() onlyOwner canMint public returns (bool) {
-        mintingFinished = true;
-        emit MintFinished();
         return true;
     }
 }
