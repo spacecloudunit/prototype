@@ -130,7 +130,6 @@ contract Pausable is Ownable {
 
     bool public paused = false;
 
-
     /**
      * @dev Modifier to make a function callable only when the contract is not paused.
      */
@@ -150,7 +149,7 @@ contract Pausable is Ownable {
     /**
      * @dev called by the owner to pause, triggers stopped state
      */
-    function pause() onlyOwner whenNotPaused public {
+    function pause() onlyOwner public {
         paused = true;
         emit Pause();
     }
@@ -158,7 +157,7 @@ contract Pausable is Ownable {
     /**
      * @dev called by the owner to unpause, returns to normal state
      */
-    function unpause() onlyOwner whenPaused public {
+    function unpause() onlyOwner public {
         paused = false;
         emit Unpause();
     }
@@ -414,11 +413,6 @@ contract BurnableToken is BasicToken {
 contract MintableToken is StandardToken, Ownable {
     event Mint(address indexed to, uint256 amount);
 
-    modifier hasMintPermission() {
-        require(msg.sender == owner);
-        _;
-    }
-
     /**
      * @dev Function to mint tokens
      * @param _to The address that will receive the minted tokens.
@@ -429,7 +423,7 @@ contract MintableToken is StandardToken, Ownable {
         address _to,
         uint256 _amount
     )
-    hasMintPermission
+    onlyOwner
     public
     returns (bool)
     {
@@ -450,13 +444,15 @@ contract CappedToken is MintableToken {
     uint256 public cap;
 
     constructor() public {
-        // cap has to be set by child constructor
+        // cap is set in child constructor
     }
 
-    /*constructor(uint256 _cap) public {
+    /** cap is set in child constructor
+    constructor(uint256 _cap) public {
         require(_cap > 0);
         cap = _cap;
-    }*/
+    }
+    */
 
     /**
      * @dev Function to mint tokens
@@ -494,6 +490,7 @@ contract PausableToken is StandardToken, Pausable {
         return super.transfer(_to, _value);
     }
 
+    /** Allow transferFrom even if paused. This is for crowdsale contracts
     function transferFrom(
         address _from,
         address _to,
@@ -505,6 +502,7 @@ contract PausableToken is StandardToken, Pausable {
     {
         return super.transferFrom(_from, _to, _value);
     }
+    */
 
     function approve(
         address _spender,
@@ -545,7 +543,7 @@ contract PausableToken is StandardToken, Pausable {
 contract SCUTestV2 is StandardToken, DetailedERC20, Ownable, PausableToken, CappedToken, BurnableToken {
     constructor() public {
         // DetailedERC20:
-        symbol = "SCT";
+        symbol = "SCT2";
         name = "Space.Cloud.Unit.Test.V2";
         decimals = 18;
         // BasicToken:
